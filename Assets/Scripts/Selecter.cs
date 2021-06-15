@@ -18,8 +18,12 @@ public class Selecter : MonoBehaviour{
 
             var cell = hit.transform.gameObject.GetComponent<Cell>();
 
+            if (cell == null) {
+                return;
+            }
+
             if (cell.figure != null) {
-                if (cell.figure.GetComponent<Figure>().isBlack == gameController.isBlackMove) {
+                if (cell.figure.isWhite == gameController.isWhiteMove) {
                     selectedCell = cell;
                     return;
                 }

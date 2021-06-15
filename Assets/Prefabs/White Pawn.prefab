@@ -109,7 +109,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec919d4cc9df27349b9ea46b7536c3fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  x: 0
-  y: 0
   figureType: 5
-  isBlack: 0
+  isWhite: 1
+  startX: 0
+  startY: 0
+  isFirstTurn: 1
