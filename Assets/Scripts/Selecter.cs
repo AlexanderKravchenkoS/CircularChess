@@ -8,6 +8,9 @@ public class Selecter : MonoBehaviour{
     private Cell selectedCell;
 
     private void Update() {
+        if (!gameController.isRunning) {
+            enabled = false;
+        }
         if (Input.GetMouseButtonDown(0)) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
