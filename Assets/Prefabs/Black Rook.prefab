@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3387380}
   - component: {fileID: 2369410}
   - component: {fileID: 6427986}
-  - component: {fileID: -1766107382198916888}
+  - component: {fileID: 6817736294969078496}
   m_Layer: 0
   m_Name: Black Rook
   m_TagString: Untagged
@@ -97,7 +97,7 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: c61872173bf5220469786c549644854f, type: 3}
---- !u!114 &-1766107382198916888
+--- !u!114 &6817736294969078496
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -106,10 +106,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 125018}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec919d4cc9df27349b9ea46b7536c3fa, type: 3}
+  m_Script: {fileID: 11500000, guid: 8afb5280cfb0d334f826a2cc0df6db51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  x: 0
-  y: 0
-  figureType: 4
-  isBlack: 1
+  figureData:
+    figureType: 4
+    isWhite: 0
+    isFirstMove: 1

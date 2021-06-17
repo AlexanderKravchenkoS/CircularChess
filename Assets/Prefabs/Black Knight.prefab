@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3304258}
   - component: {fileID: 2374884}
   - component: {fileID: 6428222}
-  - component: {fileID: -6766582370886421815}
+  - component: {fileID: 7830454042993315248}
   m_Layer: 0
   m_Name: Black Knight
   m_TagString: Untagged
@@ -97,7 +97,7 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: 639050e749c3ce444a196d84e803b067, type: 3}
---- !u!114 &-6766582370886421815
+--- !u!114 &7830454042993315248
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -106,10 +106,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 196802}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec919d4cc9df27349b9ea46b7536c3fa, type: 3}
+  m_Script: {fileID: 11500000, guid: 8afb5280cfb0d334f826a2cc0df6db51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  x: 0
-  y: 0
-  figureType: 3
-  isBlack: 1
+  figureData:
+    figureType: 3
+    isWhite: 0
+    isFirstMove: 1
