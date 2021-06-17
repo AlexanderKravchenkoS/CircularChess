@@ -27,8 +27,6 @@ public class GameController : MonoBehaviour{
                     var position = cell.point.transform.position;
                     position.y = cell.figure.transform.position.y;
                     cell.figure.transform.position = position;
-                    cell.figure.startX = cell.x;
-                    cell.figure.startY = cell.y;
                 }
 
                 cells[cell.x, cell.y] = cell;
@@ -49,22 +47,23 @@ public class GameController : MonoBehaviour{
             return;
         }
 
-        MoveFigure(originalCell.figure, newCell.point.transform.position);
-
         if (newCell.figure != null) {
+
             if (newCell.figure.figureType == FigureType.King) {
+
                 isRunning = false;
+
                 if (isWhiteMove) {
                     Debug.Log("White WIN");
                 } else {
                     Debug.Log("Black WIN");
                 }
-                Destroy(newCell.figure.gameObject);
-                return;
             }
-            Destroy(newCell.figure.gameObject);
 
+            Destroy(newCell.figure.gameObject);
         }
+
+        MoveFigure(originalCell.figure, newCell.point.transform.position);
 
         newCell.figure = originalCell.figure;
 
@@ -85,32 +84,28 @@ public class GameController : MonoBehaviour{
         bool isCorrect = false;
 
         int deltaY;
-        int deltaYR;
         int deltaX;
 
         if (startCell.x < 4 && endCell.x >= 4) {
             deltaX = (endCell.x - 4) - startCell.x;
             deltaY = (BOARD_SIZE - endCell.y) + (BOARD_SIZE - startCell.y) - 1;
-            deltaYR = startCell.y + endCell.y + 1;
         } else if (startCell.x >= 4 && endCell.x < 4) {
             deltaX = endCell.x - (startCell.x - 4);
             deltaY = (BOARD_SIZE - endCell.y) + (BOARD_SIZE - startCell.y) - 1;
-            deltaYR = startCell.y + endCell.y + 1;
         } else {
             deltaX = endCell.x - startCell.x;
             deltaY = endCell.y - startCell.y;
-            deltaYR = BOARD_SIZE * 2 - deltaY;
         }
 
         int deltaXabs = Mathf.Abs(deltaX);
         int deltaYabs = Mathf.Abs(deltaY);
-        int deltaYRabs = Mathf.Abs(deltaYR);
+        int deltaYRabs = BOARD_SIZE * 2 - deltaYabs;
 
         switch (figure.figureType) {
 
             case FigureType.King:
 
-                if (deltaXabs == 1 && (deltaY == 0 || deltaYR == 0)) {
+                if (deltaXabs == 1 && (deltaYabs == 0 || deltaYRabs == 0)) {
                     isCorrect = true;
                     break;
                 }
@@ -202,6 +197,8 @@ public class GameController : MonoBehaviour{
     }
 
     private bool IsFigureOnWay(Cell[,] cells, Cell startCell, Cell endCell) {
+        Figure figure = startCell.figure;
+
         bool isFigureOnWay = false;
 
         bool isFigureOnFirstWay;
@@ -209,13 +206,9 @@ public class GameController : MonoBehaviour{
 
         int x;
         int y;
-        int n;
 
-        int step;
         int stepX;
         int stepY;
-
-        Figure figure = startCell.figure;
 
         int deltaY;
         int deltaX;
@@ -239,8 +232,8 @@ public class GameController : MonoBehaviour{
             case FigureType.Queen:
 
                 if (deltaY == 0) {
-                    step = deltaX / deltaXabs;
-                    for (int i = startCell.x + step; i < endCell.x; i += step) {
+                    stepX = deltaX / deltaXabs;
+                    for (int i = startCell.x + stepX; i < endCell.x; i += stepX) {
                         if (cells[i, endCell.y].figure != null) {
                             isFigureOnWay = true;
                             break;
@@ -256,13 +249,13 @@ public class GameController : MonoBehaviour{
                     isFigureOnFirstWay = false;
                     isFigureOnSecondWay = false;
 
-                    step = 1;
+                    stepY = 1;
 
                     while (!isFigureOnFirstWay) {
 
-                        y += step;
+                        y += stepY;
                         if (y >= BOARD_SIZE) {
-                            step = -step;
+                            stepY = -stepY;
                             y = BOARD_SIZE - 1;
                             if (x < BOARD_SIZE / 2) {
                                 x += BOARD_SIZE / 2;
@@ -270,7 +263,7 @@ public class GameController : MonoBehaviour{
                                 x -= BOARD_SIZE / 2;
                             }
                         } else if (y < 0) {
-                            step = -step;
+                            stepY = -stepY;
                             y = 0;
                             if (x < BOARD_SIZE / 2) {
                                 x += BOARD_SIZE / 2;
@@ -292,13 +285,13 @@ public class GameController : MonoBehaviour{
                     x = startCell.x;
                     y = startCell.y;
 
-                    step = -1;
+                    stepY = -1;
 
                     while (!isFigureOnSecondWay) {
 
-                        y += step;
+                        y += stepY;
                         if (y >= BOARD_SIZE) {
-                            step = -step;
+                            stepY = -stepY;
                             y = BOARD_SIZE - 1;
                             if (x < BOARD_SIZE / 2) {
                                 x += BOARD_SIZE / 2;
@@ -306,7 +299,7 @@ public class GameController : MonoBehaviour{
                                 x -= BOARD_SIZE / 2;
                             }
                         } else if (y < 0) {
-                            step = -step;
+                            stepY = -stepY;
                             y = 0;
                             if (x < BOARD_SIZE / 2) {
                                 x += BOARD_SIZE / 2;
@@ -377,12 +370,6 @@ public class GameController : MonoBehaviour{
 
                     x = startCell.x;
                     y = startCell.y;
-
-                    if (deltaYabs <= 4) {
-                        n = deltaYabs;
-                    } else {
-                        n = deltaYRabs;
-                    }
 
                     while (!isFigureOnWay) {
 
@@ -468,12 +455,6 @@ public class GameController : MonoBehaviour{
                 x = startCell.x;
                 y = startCell.y;
 
-                if (deltaYabs <= 4) {
-                    n = deltaYabs;
-                } else {
-                    n = deltaYRabs;
-                }
-
                 while (!isFigureOnWay) {
 
                     if (y + stepY >= 8) {
@@ -511,8 +492,8 @@ public class GameController : MonoBehaviour{
             case FigureType.Rook:
 
                 if (deltaY == 0) {
-                    step = deltaX / deltaXabs;
-                    for (int i = startCell.x + step; i < endCell.x; i += step) {
+                    stepX = deltaX / deltaXabs;
+                    for (int i = startCell.x + stepX; i < endCell.x; i += stepX) {
                         if (cells[i, endCell.y].figure != null) {
                             isFigureOnWay = true;
                             break;
@@ -528,13 +509,13 @@ public class GameController : MonoBehaviour{
                     isFigureOnFirstWay = false;
                     isFigureOnSecondWay = false;
 
-                    step = 1;
+                    stepY = 1;
 
                     while (!isFigureOnFirstWay) {
 
-                        y += step;
+                        y += stepY;
                         if (y >= BOARD_SIZE) {
-                            step = -step;
+                            stepY = -stepY;
                             y = BOARD_SIZE - 1;
                             if (x < BOARD_SIZE / 2) {
                                 x += BOARD_SIZE / 2;
@@ -542,7 +523,7 @@ public class GameController : MonoBehaviour{
                                 x -= BOARD_SIZE / 2;
                             }
                         } else if (y < 0) {
-                            step = -step;
+                            stepY = -stepY;
                             y = 0;
                             if (x < BOARD_SIZE / 2) {
                                 x += BOARD_SIZE / 2;
@@ -564,13 +545,13 @@ public class GameController : MonoBehaviour{
                     x = startCell.x;
                     y = startCell.y;
 
-                    step = -1;
+                    stepY = -1;
 
                     while (!isFigureOnSecondWay) {
 
-                        y += step;
+                        y += stepY;
                         if (y >= BOARD_SIZE) {
-                            step = -step;
+                            stepY = -stepY;
                             y = BOARD_SIZE - 1;
                             if (x < BOARD_SIZE / 2) {
                                 x += BOARD_SIZE / 2;
@@ -578,7 +559,7 @@ public class GameController : MonoBehaviour{
                                 x -= BOARD_SIZE / 2;
                             }
                         } else if (y < 0) {
-                            step = -step;
+                            stepY = -stepY;
                             y = 0;
                             if (x < BOARD_SIZE / 2) {
                                 x += BOARD_SIZE / 2;
@@ -630,4 +611,7 @@ public class GameController : MonoBehaviour{
 
         return isFigureOnWay;
     }
+
+
+
 }
