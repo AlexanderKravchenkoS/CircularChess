@@ -3,14 +3,14 @@ using cell;
 
 namespace game {
     public class Selecter : MonoBehaviour {
-        public GameManager gameController;
+        public GameController gameController;
 
         private Cell selectedCell;
 
         private void Update() {
 
-            if (!gameController.isRunning) {
-                enabled = false;
+            if (gameController.gameState != GameState.Running) {
+                return;
             }
 
             if (Input.GetMouseButtonDown(0)) {
@@ -30,6 +30,8 @@ namespace game {
                 if (cell.figure != null) {
                     if (cell.figure.figureData.isWhite == gameController.isWhiteMove) {
                         selectedCell = cell;
+                        gameController.RemoveHighlight();
+                        gameController.HighlightAllMoves(selectedCell);
                         return;
                     }
                 }
@@ -41,6 +43,8 @@ namespace game {
                 gameController.ProcessSelect(selectedCell, cell);
 
                 selectedCell = null;
+
+                gameController.RemoveHighlight();
             }
         }
     }

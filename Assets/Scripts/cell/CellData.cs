@@ -1,9 +1,10 @@
 using figure;
+using option;
 
 namespace cell {
     public struct CellData {
         public int x;
         public int y;
-        public FigureData figureData;
+        public Option<FigureData> figureData;
     }
 }

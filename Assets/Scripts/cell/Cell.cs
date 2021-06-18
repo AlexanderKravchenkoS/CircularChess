@@ -7,5 +7,7 @@ namespace cell {
         public int y;
         public Transform point;
         public Figure figure;
+        public Material mainMaterial;
+        public Material secondMaterial;
     }
 }

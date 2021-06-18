@@ -1,6 +1,6 @@
 namespace figure {
     [System.Serializable]
-    public class FigureData {
+    public struct FigureData {
         public FigureType figureType;
         public bool isWhite;
         public bool isFirstMove;
