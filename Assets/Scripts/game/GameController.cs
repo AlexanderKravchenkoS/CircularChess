@@ -2,10 +2,17 @@ using UnityEngine;
 using cell;
 using figure;
 using option;
+using net;
 
 namespace game {
     public class GameController : MonoBehaviour {
         public GameObject board;
+        public Selecter selecter;
+
+        public Server serverPrefab;
+        public Client clientPrefab;
+
+        public GameObject client; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         public GameState gameState;
         public bool isWhiteMove;
@@ -56,6 +63,8 @@ namespace game {
             }
 
             MakeTurn(startCell, endCell);
+
+            //Send new data on server
         }
 
         private bool IsCorrectMove(CellData[,] data, int startX, int startY, int endX, int endY) {
@@ -700,6 +709,27 @@ namespace game {
             isWhiteMove = !isWhiteMove;
 
             gameState = GetNewGameState(cellDatas, isWhiteMove);
+
+            if (!client) {
+                selecter.isWhite = !selecter.isWhite;
+            }
+        }
+
+        public void MakeTurn(int startX, int startY, int endX, int endY, int type, int state) {
+
+            if (cells[endX, endY].figure != null) {
+                Destroy(cells[endX, endY].figure.gameObject);
+            }
+
+            if ((FigureType)type != cells[startX, startY].figure.figureData.figureType) {
+                // New fig
+            }
+
+            MoveFigure(cells[startX, startY], cells[endX, endY]);
+
+            isWhiteMove = !isWhiteMove;
+
+            gameState = (GameState)state;
         }
 
         private void MoveFigure(Cell startCell, Cell endCell) {

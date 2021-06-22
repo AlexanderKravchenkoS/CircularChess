@@ -1,3 +1,4 @@
+using net;
 using UnityEngine;
 
 namespace game {
@@ -32,5 +33,29 @@ namespace game {
                     break;
             }
         }
-    }
+
+		public void HostServerButton() {
+			string hostAddress = "127.0.0.1";
+			try {
+				Server s = Instantiate(gameController.serverPrefab);
+				s.Init();
+
+				Client c = Instantiate(gameController.clientPrefab);
+				c.ConnectToServer(hostAddress, 8888);
+			} catch (System.Exception e) {
+				Debug.Log(e.Message);
+			}
+		}
+		public void ConnectToServerButton() {
+	        string hostAddress = "127.0.0.1";
+
+            try {
+                Client c = Instantiate(gameController.clientPrefab);
+                c.ConnectToServer(hostAddress, 8888);
+
+            } catch (System.Exception e) {
+                Debug.Log(e.Message);
+            }
+		}
+	}
 }

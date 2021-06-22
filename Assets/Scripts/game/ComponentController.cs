@@ -1,9 +1,12 @@
+using net;
 using UnityEngine;
 
 namespace game {
     public class ComponentController : MonoBehaviour {
         public GameController gameController;
         public Selecter selecter;
+
+
 
         private GameState lastGameState;
 
