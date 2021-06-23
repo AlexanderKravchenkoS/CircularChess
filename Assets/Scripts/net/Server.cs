@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -27,7 +26,7 @@ namespace net {
                     string data = reader.ReadLine();
 
                     if (data != null)
-                        OnIncomingData(client, data);
+                        SendData(client, data);
                 }
             }
         }
@@ -62,12 +61,23 @@ namespace net {
 
             if (clients.Count != 2) {
                 StartListening();
+                return;
             }
 
             isServerProcesing = true;
+
+            foreach (var item in clients) {
+                try {
+                    StreamWriter writer = new StreamWriter(item.GetStream());
+                    writer.WriteLine("START");
+                    writer.Flush();
+                } catch (Exception e) {
+                    Debug.Log("Write error : " + e.Message);
+                }
+            }
         }
 
-        private void OnIncomingData(TcpClient client, string data) {
+        private void SendData(TcpClient client, string data) {
             TcpClient clientForSend = new TcpClient();
 
             foreach (var cl in clients) {
@@ -89,6 +99,10 @@ namespace net {
                     }
                     break;
             }
+        }
+
+        private void OnDestroy() {
+            listener.Stop();
         }
     }
 }

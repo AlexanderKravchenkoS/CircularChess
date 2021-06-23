@@ -3,15 +3,15 @@ using cell;
 using figure;
 using option;
 using net;
+using resource;
 
 namespace game {
     public class GameController : MonoBehaviour {
-        public GameObject board;
-
-        public Server serverPrefab;
-        public Client clientPrefab;
+        public Resource resources;
+        public GameObject playground;
 
         public Client client;
+        public Server server;
         public bool isWhitePlayer;
 
         public GameState gameState;
@@ -22,7 +22,18 @@ namespace game {
 
         private const int BOARD_SIZE = 8;
 
+        private Cell startCellWithPawn;
+        private Cell endCellWithPawn;
+
         private void Start() {
+            gameState = GameState.Stop;
+        }
+
+        public void StartGame() {
+
+            playground = Instantiate(resources.playground);
+            var board = playground.transform.Find("Board");
+
             cells = new Cell[BOARD_SIZE, BOARD_SIZE];
             cellDatas = new CellData[BOARD_SIZE, BOARD_SIZE];
 
@@ -54,7 +65,6 @@ namespace game {
 
             gameState = GameState.Running;
             isWhiteMove = true;
-            isWhitePlayer = true;
         }
 
         public void ProcessSelect(Cell startCell, Cell endCell) {
@@ -64,21 +74,6 @@ namespace game {
             }
 
             MakeTurn(startCell, endCell);
-
-            if (!client) {
-                isWhitePlayer = !isWhitePlayer;
-                return;
-            }
-
-            string msg = "MOVE|";
-            msg += startCell.x.ToString() + "|";
-            msg += startCell.y.ToString() + "|";
-            msg += endCell.x.ToString() + "|";
-            msg += endCell.y.ToString() + "|";
-            msg += ((int)endCell.figure.figureData.figureType).ToString() + "|";
-            msg += ((int)gameState).ToString();
-
-            client.Send(msg);
         }
 
         private bool IsCorrectMove(CellData[,] data, int startX, int startY, int endX, int endY) {
@@ -720,9 +715,31 @@ namespace game {
 
             MoveFigure(startCell, endCell);
 
+            if (IsPawnInTheEnd(endCell)) {
+                gameState = GameState.Pause;
+                startCellWithPawn = startCell;
+                endCellWithPawn = endCell;
+                return;
+            }
+
             isWhiteMove = !isWhiteMove;
 
             gameState = GetNewGameState(cellDatas, isWhiteMove);
+
+            if (!client) {
+                isWhitePlayer = !isWhitePlayer;
+                return;
+            }
+
+            string msg = "MOVE|"
+                + startCell.x.ToString() + "|"
+                + startCell.y.ToString() + "|"
+                + endCell.x.ToString() + "|"
+                + endCell.y.ToString() + "|"
+                + ((int)endCell.figure.figureData.figureType).ToString() + "|"
+                + ((int)gameState).ToString();
+
+            client.Send(msg);
         }
 
         public void MakeTurn(int startX, int startY, int endX, int endY, int type, int state) {
@@ -731,11 +748,12 @@ namespace game {
                 Destroy(cells[endX, endY].figure.gameObject);
             }
 
-            //if ((FigureType)type != cells[startX, startY].figure.figureData.figureType) {
-            //    // New fig
-            //}
-
             MoveFigure(cells[startX, startY], cells[endX, endY]);
+
+            if ((FigureType)type != cells[endX, endY].figure.figureData.figureType) {
+                endCellWithPawn = cells[endX, endY];
+                TransformPawnToNewFigure((FigureType)type);
+            }
 
             isWhiteMove = !isWhiteMove;
 
@@ -795,10 +813,22 @@ namespace game {
             }
 
             if (isCheck) {
-                return GameState.End;
+                return GameState.Win;
             } else {
                 return GameState.Draw;
             }
+        }
+
+        private bool IsPawnInTheEnd(Cell cell) {
+            if (cell.figure.figureData.figureType != FigureType.Pawn) {
+                return false;
+            }
+
+            if (cell.y == 0 || cell.y == 7) {
+                return true;
+            }
+
+            return false;
         }
 
         public void HighlightAllMoves(Cell startCell) {
@@ -828,6 +858,109 @@ namespace game {
         public void RemoveHighlight() {
             foreach (var cell in cells) {
                 cell.gameObject.GetComponent<MeshRenderer>().material = cell.mainMaterial;
+            }
+        }
+
+        public void Host() {
+            ClearGame();
+
+            string hostAddress = "127.0.0.1";
+            try {
+                Server s = Instantiate(resources.serverPrefab);
+                s.Init();
+                server = s;
+
+                Client c = Instantiate(resources.clientPrefab);
+                c.ConnectToServer(hostAddress, 8888);
+
+                c.gameController = this;
+                client = c;
+                isWhitePlayer = true;
+
+                gameState = GameState.Waiting;
+            } catch (System.Exception e) {
+                Debug.Log(e.Message);
+            }
+        }
+
+        public void Connect(string hostAddress) {
+            ClearGame();
+
+            try {
+                Client c = Instantiate(resources.clientPrefab);
+                c.ConnectToServer(hostAddress, 8888);
+
+                c.gameController = this;
+                client = c;
+                isWhitePlayer = false;
+
+                gameState = GameState.Waiting;
+            } catch (System.Exception e) {
+                Debug.Log(e.Message);
+            }
+        }
+
+        public void Hotseat() {
+            ClearGame();
+
+            StartGame();
+
+            isWhitePlayer = true;
+        }
+
+        public void TransformPawn(FigureType newType) {
+            TransformPawnToNewFigure(newType);
+
+            isWhiteMove = !isWhiteMove;
+
+            gameState = GetNewGameState(cellDatas, isWhiteMove);
+
+            if (!client) {
+                isWhitePlayer = !isWhitePlayer;
+                return;
+            }
+
+            string msg = "MOVE|"
+                + startCellWithPawn.x.ToString() + "|"
+                + startCellWithPawn.y.ToString() + "|"
+                + endCellWithPawn.x.ToString() + "|"
+                + endCellWithPawn.y.ToString() + "|"
+                + ((int)endCellWithPawn.figure.figureData.figureType).ToString() + "|"
+                + ((int)gameState).ToString();
+
+            client.Send(msg);
+        }
+
+        private void TransformPawnToNewFigure(FigureType newType) {
+            Figure figure;
+
+            if (endCellWithPawn.figure.figureData.isWhite) {
+                figure = resources.whiteFigurePrefabs[newType];
+            } else {
+                figure = resources.blackFigurePrefabs[newType];
+            }
+
+            var position = endCellWithPawn.figure.transform.position;
+            var rotation = endCellWithPawn.figure.transform.rotation;
+            var newFigure = Instantiate(figure, position, rotation);
+
+            Destroy(endCellWithPawn.figure.gameObject);
+            endCellWithPawn.figure = newFigure;
+            cellDatas[endCellWithPawn.x, endCellWithPawn.y].figureData =
+                Option<FigureData>.Some(figure.figureData);
+        }
+
+        private void ClearGame() {
+            if (client) {
+                Destroy(client.gameObject);
+            }
+
+            if (server) {
+                Destroy(server.gameObject);
+            }
+
+            if (playground) {
+                Destroy(playground);
             }
         }
     }

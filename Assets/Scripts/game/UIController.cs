@@ -1,68 +1,134 @@
-using net;
 using UnityEngine;
+using UnityEngine.UI;
+using figure;
 
 namespace game {
     public class UIController : MonoBehaviour {
         public GameController gameController;
 
-        private GameState lastGameState;
+        public Canvas MainMenuCanvas;
+        public Canvas ConnectCanvas;
+        public Canvas WaitingCanvas;
+        public Canvas PawnCanvas;
+        public Canvas EndCanvas;
+        public Canvas GameCanvas;
+
+        public Text winText;
+        public Text ipText;
 
         private void Update() {
-            if (gameController.gameState == lastGameState) {
-                return;
-            }
-
-            lastGameState = gameController.gameState;
-
-            switch (lastGameState) {
+            switch (gameController.gameState) {
                 case GameState.Stop:
+                    MainMenuCanvas.enabled = true;
+                    WaitingCanvas.enabled = false;
+                    PawnCanvas.enabled = false;
+                    EndCanvas.enabled = false;
+                    GameCanvas.enabled = false;
+                    ConnectCanvas.enabled = false;
                     break;
+
+                case GameState.Connecting:
+                    MainMenuCanvas.enabled = false;
+                    WaitingCanvas.enabled = false;
+                    PawnCanvas.enabled = false;
+                    EndCanvas.enabled = false;
+                    GameCanvas.enabled = false;
+                    ConnectCanvas.enabled = true;
+                    break;
+
+                case GameState.Waiting:
+                    MainMenuCanvas.enabled = false;
+                    WaitingCanvas.enabled = true;
+                    PawnCanvas.enabled = false;
+                    EndCanvas.enabled = false;
+                    GameCanvas.enabled = false;
+                    ConnectCanvas.enabled = false;
+                    break;
+
                 case GameState.Pause:
+                    MainMenuCanvas.enabled = false;
+                    WaitingCanvas.enabled = false;
+                    PawnCanvas.enabled = true;
+                    EndCanvas.enabled = false;
+                    GameCanvas.enabled = false;
+                    ConnectCanvas.enabled = false;
                     break;
+
                 case GameState.Running:
+                    MainMenuCanvas.enabled = false;
+                    WaitingCanvas.enabled = false;
+                    PawnCanvas.enabled = false;
+                    EndCanvas.enabled = false;
+                    GameCanvas.enabled = true;
+                    ConnectCanvas.enabled = false;
                     break;
+
                 case GameState.Draw:
-                    Debug.Log("Draw");
+                    MainMenuCanvas.enabled = false;
+                    WaitingCanvas.enabled = false;
+                    PawnCanvas.enabled = false;
+                    EndCanvas.enabled = true;
+                    GameCanvas.enabled = false;
+                    ConnectCanvas.enabled = false;
+
+                    winText.text = "Draw";
                     break;
-                case GameState.End:
+
+                case GameState.Win:
+                    MainMenuCanvas.enabled = false;
+                    WaitingCanvas.enabled = false;
+                    PawnCanvas.enabled = false;
+                    EndCanvas.enabled = true;
+                    GameCanvas.enabled = false;
+                    ConnectCanvas.enabled = false;
+
                     if (gameController.isWhiteMove) {
-                        Debug.Log("Black Win");
+                        winText.text = "Black Win";
                     } else {
-                        Debug.Log("White Win");
+                        winText.text = "White Win";
                     }
                     break;
             }
         }
 
-		public void HostServerButton() {
-			string hostAddress = "127.0.0.1";
-			try {
-				Server s = Instantiate(gameController.serverPrefab);
-				s.Init();
-
-				Client c = Instantiate(gameController.clientPrefab);
-				c.ConnectToServer(hostAddress, 8888);
-
-                c.gameController = gameController;
-                gameController.client = c;
-                gameController.isWhitePlayer = true;
-			} catch (System.Exception e) {
-				Debug.Log(e.Message);
-			}
+        public void HostButton() {
+            gameController.Host();
 		}
-		public void ConnectToServerButton() {
-	        string hostAddress = "127.0.0.1";
 
-            try {
-                Client c = Instantiate(gameController.clientPrefab);
-                c.ConnectToServer(hostAddress, 8888);
+		public void ConnectButton() {
+            gameController.gameState = GameState.Connecting;
+        }
 
-                c.gameController = gameController;
-                gameController.client = c;
-                gameController.isWhitePlayer = false;
-            } catch (System.Exception e) {
-                Debug.Log(e.Message);
+        public void StartHotseat() {
+            gameController.Hotseat();
+        }
+
+        public void CreateBishop() {
+            gameController.TransformPawn(FigureType.Bishop);
+        }
+
+        public void CreateQueen() {
+            gameController.TransformPawn(FigureType.Queen);
+        }
+
+        public void CreateRook() {
+            gameController.TransformPawn(FigureType.Rook);
+        }
+
+        public void CreateKnight() {
+            gameController.TransformPawn(FigureType.Knight);
+        }
+
+        public void BackFromConnecting() {
+            gameController.gameState = GameState.Stop;
+        }
+
+        public void Connect() {
+            var ip = ipText.text;
+            if (ip == "") {
+                ip = "127.0.0.1";
             }
-		}
-	}
+            gameController.Connect(ip);
+        }
+    }
 }

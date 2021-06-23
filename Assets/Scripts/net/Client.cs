@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.Net.Sockets;
 using System.IO;
@@ -30,7 +28,7 @@ namespace net {
                 return;
             }
 
-            OnIncomingData(data);
+            ProcessData(data);
         }
 
         public bool ConnectToServer(string host, int port) {
@@ -63,7 +61,7 @@ namespace net {
             writer.Flush();
         }
 
-        private void OnIncomingData(string data) {
+        private void ProcessData(string data) {
             string[] aData = data.Split('|');
 
             switch (aData[0]) {
@@ -76,6 +74,9 @@ namespace net {
                         int.Parse(aData[5]),
                         int.Parse(aData[6]));
 
+                    break;
+                case "START":
+                    gameController.StartGame();
                     break;
             }
         }
