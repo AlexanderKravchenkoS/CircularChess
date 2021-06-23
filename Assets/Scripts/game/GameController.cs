@@ -4,9 +4,11 @@ using figure;
 using option;
 using net;
 using resource;
+using UnityEngine.UI;
 
 namespace game {
     public class GameController : MonoBehaviour {
+        public Text lossss;
         public Resource resources;
         public GameObject playground;
 
@@ -24,6 +26,9 @@ namespace game {
 
         private Cell startCellWithPawn;
         private Cell endCellWithPawn;
+
+        private const int PORT = 8888;
+        private const string STANDART_IP = "127.0.0.1";
 
         private void Start() {
             gameState = GameState.Stop;
@@ -864,14 +869,13 @@ namespace game {
         public void Host() {
             ClearGame();
 
-            string hostAddress = "127.0.0.1";
             try {
                 Server s = Instantiate(resources.serverPrefab);
-                s.Init();
+                s.Init(PORT);
                 server = s;
 
                 Client c = Instantiate(resources.clientPrefab);
-                c.ConnectToServer(hostAddress, 8888);
+                c.ConnectToServer(STANDART_IP, PORT);
 
                 c.gameController = this;
                 client = c;
@@ -888,7 +892,7 @@ namespace game {
 
             try {
                 Client c = Instantiate(resources.clientPrefab);
-                c.ConnectToServer(hostAddress, 8888);
+                c.ConnectToServer(hostAddress, PORT);
 
                 c.gameController = this;
                 client = c;
@@ -942,7 +946,7 @@ namespace game {
 
             var position = endCellWithPawn.figure.transform.position;
             var rotation = endCellWithPawn.figure.transform.rotation;
-            var newFigure = Instantiate(figure, position, rotation);
+            var newFigure = Instantiate(figure, position, rotation, playground.transform);
 
             Destroy(endCellWithPawn.figure.gameObject);
             endCellWithPawn.figure = newFigure;

@@ -679,7 +679,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 136815633}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 0
   m_Camera: {fileID: 0}
@@ -4853,6 +4853,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3dafd35a3e4bd043875bc70cd2ad5ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lossss: {fileID: 0}
   resources: {fileID: 1417934066}
   playground: {fileID: 0}
   client: {fileID: 0}

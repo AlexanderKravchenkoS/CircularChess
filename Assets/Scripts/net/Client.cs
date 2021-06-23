@@ -46,7 +46,6 @@ namespace net {
 
             } catch (Exception e) {
                 Debug.LogError("Socket error " + e.Message);
-
             }
 
             return isSocketReady;

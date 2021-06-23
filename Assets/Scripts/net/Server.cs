@@ -4,11 +4,10 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
+using game;
 
 namespace net {
     public class Server : MonoBehaviour {
-        public const int PORT = 8888;
-
         private List<TcpClient> clients;
 
         private TcpListener listener;
@@ -31,18 +30,17 @@ namespace net {
             }
         }
 
-        public void Init() {
+        public void Init(int port) {
             clients = new List<TcpClient>();
 
             try {
-                listener = new TcpListener(IPAddress.Loopback, PORT);
+                listener = new TcpListener(IPAddress.Any, port);
                 listener.Start();
 
                 StartListening();
                 isServerProcesing = false;
 
             } catch (Exception ex) {
-
                 Debug.LogError($"Socket error: {ex.Message}");
                 return;
             }
