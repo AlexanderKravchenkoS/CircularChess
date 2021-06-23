@@ -42,6 +42,10 @@ namespace game {
 
 				Client c = Instantiate(gameController.clientPrefab);
 				c.ConnectToServer(hostAddress, 8888);
+
+                c.gameController = gameController;
+                gameController.client = c;
+                gameController.isWhitePlayer = true;
 			} catch (System.Exception e) {
 				Debug.Log(e.Message);
 			}
@@ -53,6 +57,9 @@ namespace game {
                 Client c = Instantiate(gameController.clientPrefab);
                 c.ConnectToServer(hostAddress, 8888);
 
+                c.gameController = gameController;
+                gameController.client = c;
+                gameController.isWhitePlayer = false;
             } catch (System.Exception e) {
                 Debug.Log(e.Message);
             }

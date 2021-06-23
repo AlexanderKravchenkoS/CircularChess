@@ -5,8 +5,6 @@ namespace game {
     public class Selecter : MonoBehaviour {
         public GameController gameController;
 
-        public bool isWhite = true;
-
         private Cell selectedCell;
 
         private void Update() {
@@ -30,7 +28,9 @@ namespace game {
                 }
 
                 if (cell.figure != null) {
-                    if (cell.figure.figureData.isWhite == gameController.isWhiteMove && isWhite == gameController.isWhiteMove) {
+                    if (cell.figure.figureData.isWhite == gameController.isWhiteMove
+                        && gameController.isWhitePlayer == gameController.isWhiteMove) {
+
                         selectedCell = cell;
                         gameController.RemoveHighlight();
                         gameController.HighlightAllMoves(selectedCell);
