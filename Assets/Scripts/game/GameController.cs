@@ -4,7 +4,6 @@ using figure;
 using option;
 using net;
 using resource;
-using UnityEngine.UI;
 
 namespace game {
     public class GameController : MonoBehaviour {
@@ -732,7 +731,7 @@ namespace game {
                 return;
             }
 
-            string msg = "MOVE|"
+            string msg = Server.MOVE_COMMAND + "|"
                 + startCell.x.ToString() + "|"
                 + startCell.y.ToString() + "|"
                 + endCell.x.ToString() + "|"
@@ -864,31 +863,41 @@ namespace game {
 
         public void Host() {
             try {
-                Server s = Instantiate(resources.serverPrefab);
-                s.Init();
-                server = s;
+                Server server = Instantiate(resources.serverPrefab);
+                server.Init();
+                this.server = server;
+                server.listener.Pending();
 
-                Client c = Instantiate(resources.clientPrefab);
-                c.ConnectToServer(Server.STANDART_IP, Server.PORT);
 
-                c.gameController = this;
-                client = c;
+                Client client = Instantiate(resources.clientPrefab);
+                client.gameController = this;
+                this.client = client;
                 isWhitePlayer = true;
+
+                if (!client.ConnectToServer(Server.STANDART_IP, Server.PORT)) {
+                    Destroy(client.gameObject);
+                    return;
+                }
 
                 gameState = GameState.Waiting;
             } catch (System.Exception e) {
                 Debug.Log(e.Message);
+                Destroy(server.gameObject);
+                gameState = GameState.HostError;
             }
         }
 
         public void Connect(string hostAddress) {
             try {
-                Client c = Instantiate(resources.clientPrefab);
-                c.ConnectToServer(hostAddress, Server.PORT);
-
-                c.gameController = this;
-                client = c;
+                Client client = Instantiate(resources.clientPrefab);
+                client.gameController = this;
+                this.client = client;
                 isWhitePlayer = false;
+
+                if (!client.ConnectToServer(hostAddress, Server.PORT)) {
+                    Destroy(client.gameObject);
+                    return;
+                }
 
                 gameState = GameState.Waiting;
             } catch (System.Exception e) {
@@ -914,7 +923,7 @@ namespace game {
                 return;
             }
 
-            string msg = "MOVE|"
+            string msg = Server.MOVE_COMMAND + "|"
                 + startCellWithPawn.x.ToString() + "|"
                 + startCellWithPawn.y.ToString() + "|"
                 + endCellWithPawn.x.ToString() + "|"

@@ -10,11 +10,15 @@ namespace net {
     public class Server : MonoBehaviour {
         private List<TcpClient> clients;
 
-        private TcpListener listener;
+        public TcpListener listener;
         private bool isServerProcesing;
 
         public const int PORT = 8888;
         public const string STANDART_IP = "127.0.0.1";
+
+        public const string MOVE_COMMAND = "MOVE";
+        public const string START_COMMAND = "START";
+        public const string CLOSE_COMMAND = "CLOSE";
 
         private void Update() {
             if (!isServerProcesing) {
@@ -44,8 +48,7 @@ namespace net {
                 isServerProcesing = false;
 
             } catch (Exception ex) {
-                Debug.LogError($"Socket error: {ex.Message}");
-                return;
+                Debug.Log($"Socket error: {ex.Message}");
             }
         }
 
@@ -67,7 +70,7 @@ namespace net {
 
             isServerProcesing = true;
 
-            SendData("START");
+            SendData(START_COMMAND);
         }
 
         private void SendData(string data, TcpClient client = null) {
@@ -79,12 +82,16 @@ namespace net {
                         clientForSend = cl;
                     }
                 }
+
+                if (!clientForSend.Connected) {
+                    return;
+                }
             }
 
             string[] aData = data.Split('|');
 
             switch (aData[0]) {
-                case "MOVE":
+                case MOVE_COMMAND:
                     try {
                         StreamWriter writer = new StreamWriter(clientForSend.GetStream());
                         writer.WriteLine(data);
@@ -94,21 +101,35 @@ namespace net {
                     }
                     break;
 
-                case "START":
+                case START_COMMAND:
                     foreach (var item in clients) {
                         try {
                             StreamWriter writer = new StreamWriter(item.GetStream());
-                            writer.WriteLine("START");
+                            writer.WriteLine(data);
                             writer.Flush();
                         } catch (Exception e) {
                             Debug.Log("Write error : " + e.Message);
                         }
                     }
                     break;
+
+                case CLOSE_COMMAND:
+                    try {
+                        StreamWriter writer = new StreamWriter(clientForSend.GetStream());
+                        writer.WriteLine(data);
+                        writer.Flush();
+                    } catch (Exception e) {
+                        Debug.Log("Write error : " + e.Message);
+                    }
+                    break;
             }
         }
 
         private void OnDestroy() {
+            if (clients.Count != 0) {
+                SendData(CLOSE_COMMAND, clients[0]);
+            }
+
             listener.Stop();
         }
     }

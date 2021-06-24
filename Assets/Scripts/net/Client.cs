@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Net.Sockets;
 using System.IO;
-using System;
 using game;
 
 namespace net {
@@ -44,8 +43,8 @@ namespace net {
 
                 isSocketReady = true;
 
-            } catch (Exception e) {
-                Debug.LogError("Socket error " + e.Message);
+            } catch {
+                gameController.gameState = GameState.ConnectError;
             }
 
             return isSocketReady;
@@ -64,7 +63,7 @@ namespace net {
             string[] aData = data.Split('|');
 
             switch (aData[0]) {
-                case "MOVE":
+                case Server.MOVE_COMMAND:
                     gameController.MakeTurn
                         (int.Parse(aData[1]),
                         int.Parse(aData[2]),
@@ -74,8 +73,12 @@ namespace net {
                         int.Parse(aData[6]));
 
                     break;
-                case "START":
+                case Server.START_COMMAND:
                     gameController.StartGame();
+                    break;
+
+                case Server.CLOSE_COMMAND:
+                    gameController.gameState = GameState.Disconnect;
                     break;
             }
         }
@@ -84,6 +87,8 @@ namespace net {
             if (!isSocketReady) {
                 return;
             }
+
+            Send(Server.CLOSE_COMMAND);
 
             writer.Close();
             reader.Close();

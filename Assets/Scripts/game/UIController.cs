@@ -8,7 +8,10 @@ namespace game {
         public GameController gameController;
 
         public Canvas MainMenuCanvas;
+        public Canvas HostErrorCanvas;
         public Canvas ConnectCanvas;
+        public Canvas ConnectErrorCanvas;
+        public Canvas DisconnectCanvas;
         public Canvas WaitingCanvas;
         public Canvas PawnCanvas;
         public Canvas EndCanvas;
@@ -17,14 +20,30 @@ namespace game {
         public Text winText;
         public Text ipText;
 
+        private const string DRAW_TEXT = "Draw";
+        private const string BLACK_WIN_TEXT = "Black Win";
+        private const string WHITE_WIN_TEXT = "White Win";
+
         private void Update() {
             switch (gameController.gameState) {
                 case GameState.Stop:
                     SwitchCanvas(MainMenuCanvas);
                     break;
 
+                case GameState.HostError:
+                    SwitchCanvas(HostErrorCanvas);
+                    break;
+
                 case GameState.Connecting:
                     SwitchCanvas(ConnectCanvas);
+                    break;
+
+                case GameState.ConnectError:
+                    SwitchCanvas(ConnectErrorCanvas);
+                    break;
+
+                case GameState.Disconnect:
+                    SwitchCanvas(DisconnectCanvas);
                     break;
 
                 case GameState.Waiting:
@@ -42,16 +61,16 @@ namespace game {
                 case GameState.Draw:
                     SwitchCanvas(EndCanvas);
 
-                    winText.text = "Draw";
+                    winText.text = DRAW_TEXT;
                     break;
 
                 case GameState.Win:
                     SwitchCanvas(EndCanvas);
 
                     if (gameController.isWhiteMove) {
-                        winText.text = "Black Win";
+                        winText.text = BLACK_WIN_TEXT;
                     } else {
-                        winText.text = "White Win";
+                        winText.text = WHITE_WIN_TEXT;
                     }
                     break;
             }
@@ -64,6 +83,9 @@ namespace game {
             EndCanvas.enabled = false;
             GameCanvas.enabled = false;
             ConnectCanvas.enabled = false;
+            DisconnectCanvas.enabled = false;
+            ConnectErrorCanvas.enabled = false;
+            HostErrorCanvas.enabled = false;
 
             canvasToEnable.enabled = true;
         }
