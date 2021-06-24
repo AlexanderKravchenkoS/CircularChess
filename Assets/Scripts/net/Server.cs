@@ -13,6 +13,9 @@ namespace net {
         private TcpListener listener;
         private bool isServerProcesing;
 
+        public const int PORT = 8888;
+        public const string STANDART_IP = "127.0.0.1";
+
         private void Update() {
             if (!isServerProcesing) {
                 return;
@@ -25,16 +28,16 @@ namespace net {
                     string data = reader.ReadLine();
 
                     if (data != null)
-                        SendData(client, data);
+                        SendData(data, client);
                 }
             }
         }
 
-        public void Init(int port) {
+        public void Init() {
             clients = new List<TcpClient>();
 
             try {
-                listener = new TcpListener(IPAddress.Any, port);
+                listener = new TcpListener(IPAddress.Any, PORT);
                 listener.Start();
 
                 StartListening();
@@ -55,7 +58,7 @@ namespace net {
 
             var tcpClient = listener.EndAcceptTcpClient(ar);
             clients.Add(tcpClient);
-            Debug.Log("Client conencted");
+            Debug.Log("Client connected");
 
             if (clients.Count != 2) {
                 StartListening();
@@ -64,23 +67,17 @@ namespace net {
 
             isServerProcesing = true;
 
-            foreach (var item in clients) {
-                try {
-                    StreamWriter writer = new StreamWriter(item.GetStream());
-                    writer.WriteLine("START");
-                    writer.Flush();
-                } catch (Exception e) {
-                    Debug.Log("Write error : " + e.Message);
-                }
-            }
+            SendData("START");
         }
 
-        private void SendData(TcpClient client, string data) {
+        private void SendData(string data, TcpClient client = null) {
             TcpClient clientForSend = new TcpClient();
 
-            foreach (var cl in clients) {
-                if (cl != client) {
-                    clientForSend = cl;
+            if (client != null) {
+                foreach (var cl in clients) {
+                    if (cl != client) {
+                        clientForSend = cl;
+                    }
                 }
             }
 
@@ -94,6 +91,18 @@ namespace net {
                         writer.Flush();
                     } catch (Exception e) {
                         Debug.Log("Write error : " + e.Message);
+                    }
+                    break;
+
+                case "START":
+                    foreach (var item in clients) {
+                        try {
+                            StreamWriter writer = new StreamWriter(item.GetStream());
+                            writer.WriteLine("START");
+                            writer.Flush();
+                        } catch (Exception e) {
+                            Debug.Log("Write error : " + e.Message);
+                        }
                     }
                     break;
             }

@@ -8,7 +8,6 @@ using UnityEngine.UI;
 
 namespace game {
     public class GameController : MonoBehaviour {
-        public Text lossss;
         public Resource resources;
         public GameObject playground;
 
@@ -22,13 +21,10 @@ namespace game {
         private Cell[,] cells;
         private CellData[,] cellDatas;
 
-        private const int BOARD_SIZE = 8;
-
         private Cell startCellWithPawn;
         private Cell endCellWithPawn;
 
-        private const int PORT = 8888;
-        private const string STANDART_IP = "127.0.0.1";
+        private const int BOARD_SIZE = 8;
 
         private void Start() {
             gameState = GameState.Stop;
@@ -867,15 +863,13 @@ namespace game {
         }
 
         public void Host() {
-            ClearGame();
-
             try {
                 Server s = Instantiate(resources.serverPrefab);
-                s.Init(PORT);
+                s.Init();
                 server = s;
 
                 Client c = Instantiate(resources.clientPrefab);
-                c.ConnectToServer(STANDART_IP, PORT);
+                c.ConnectToServer(Server.STANDART_IP, Server.PORT);
 
                 c.gameController = this;
                 client = c;
@@ -888,11 +882,9 @@ namespace game {
         }
 
         public void Connect(string hostAddress) {
-            ClearGame();
-
             try {
                 Client c = Instantiate(resources.clientPrefab);
-                c.ConnectToServer(hostAddress, PORT);
+                c.ConnectToServer(hostAddress, Server.PORT);
 
                 c.gameController = this;
                 client = c;
@@ -905,8 +897,6 @@ namespace game {
         }
 
         public void Hotseat() {
-            ClearGame();
-
             StartGame();
 
             isWhitePlayer = true;
@@ -954,7 +944,7 @@ namespace game {
                 Option<FigureData>.Some(figure.figureData);
         }
 
-        private void ClearGame() {
+        public void ClearGame() {
             if (client) {
                 Destroy(client.gameObject);
             }
