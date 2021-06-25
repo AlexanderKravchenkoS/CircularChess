@@ -231,14 +231,7 @@ namespace game {
 
             bool isFigureOnWay = false;
 
-            bool isFigureOnFirstWay;
-            bool isFigureOnSecondWay;
-
-            int x;
             int y;
-
-            int stepX;
-            int stepY;
 
             int deltaY;
             int deltaX;
@@ -261,371 +254,22 @@ namespace game {
             switch (figure.figureType) {
                 case FigureType.Queen:
 
-                    if (deltaY == 0) {
-                        stepX = deltaX / deltaXabs;
-                        x = startCell.x;
-                        while (!isFigureOnWay) {
-                            x += stepX;
-
-                            if (x == endCell.x) {
-                                break;
-                            }
-
-                            if (cellDatas[x, endCell.y].figureData.IsNone()) {
-                                continue;
-                            }
-
-                            isFigureOnWay = true;
-                        }
-                        break;
+                    if (deltaX == 0 || deltaY == 0) {
+                        isFigureOnWay = IsFigureOnRow(startCell, endCell, deltaX, deltaY);
                     }
-
-                    if (deltaX == 0) {
-                        x = startCell.x;
-                        y = startCell.y;
-
-                        isFigureOnFirstWay = false;
-                        isFigureOnSecondWay = false;
-
-                        stepY = 1;
-
-                        while (!isFigureOnFirstWay) {
-
-                            y += stepY;
-                            if (y >= BOARD_SIZE) {
-                                stepY = -stepY;
-                                y = BOARD_SIZE - 1;
-                                if (x < BOARD_SIZE / 2) {
-                                    x += BOARD_SIZE / 2;
-                                } else {
-                                    x -= BOARD_SIZE / 2;
-                                }
-                            } else if (y < 0) {
-                                stepY = -stepY;
-                                y = 0;
-                                if (x < BOARD_SIZE / 2) {
-                                    x += BOARD_SIZE / 2;
-                                } else {
-                                    x -= BOARD_SIZE / 2;
-                                }
-                            }
-
-                            if (x == endCell.x && y == endCell.y) {
-                                break;
-                            }
-
-                            if (cellDatas[x, y].figureData.IsSome()) {
-                                isFigureOnFirstWay = true;
-                            }
-
-                        }
-
-                        x = startCell.x;
-                        y = startCell.y;
-
-                        stepY = -1;
-
-                        while (!isFigureOnSecondWay) {
-
-                            y += stepY;
-                            if (y >= BOARD_SIZE) {
-                                stepY = -stepY;
-                                y = BOARD_SIZE - 1;
-                                if (x < BOARD_SIZE / 2) {
-                                    x += BOARD_SIZE / 2;
-                                } else {
-                                    x -= BOARD_SIZE / 2;
-                                }
-                            } else if (y < 0) {
-                                stepY = -stepY;
-                                y = 0;
-                                if (x < BOARD_SIZE / 2) {
-                                    x += BOARD_SIZE / 2;
-                                } else {
-                                    x -= BOARD_SIZE / 2;
-                                }
-                            }
-
-                            if (x == endCell.x && y == endCell.y) {
-                                break;
-                            }
-
-                            if (cellDatas[x, y].figureData.IsSome()) {
-                                isFigureOnSecondWay = true;
-                            }
-                        }
-
-                        if (isFigureOnFirstWay && isFigureOnSecondWay) {
-                            isFigureOnWay = true;
-                        }
-                    }
-
                     if (deltaXabs == deltaYabs || deltaXabs == deltaYRabs) {
-                        if (startCell.x < BOARD_SIZE / 2 && endCell.x >= BOARD_SIZE / 2) {
-
-                            if (startCell.x + BOARD_SIZE / 2 > endCell.x) {
-                                stepX = -1;
-                            } else {
-                                stepX = 1;
-                            }
-
-                            if (startCell.y >= BOARD_SIZE / 2) {
-                                stepY = 1;
-                            } else {
-                                stepY = -1;
-                            }
-
-                        } else if (startCell.x >= BOARD_SIZE / 2 && endCell.x < BOARD_SIZE / 2) {
-
-                            if (startCell.x - BOARD_SIZE / 2 > endCell.x) {
-                                stepX = -1;
-                            } else {
-                                stepX = 1;
-                            }
-
-                            if (startCell.y >= BOARD_SIZE / 2) {
-                                stepY = 1;
-                            } else {
-                                stepY = -1;
-                            }
-
-                        } else {
-
-                            if (startCell.x > endCell.x) {
-                                stepX = -1;
-                            } else {
-                                stepX = 1;
-                            }
-
-                            if (startCell.y > endCell.y) {
-                                stepY = -1;
-                            } else {
-                                stepY = 1;
-                            }
-
-                        }
-
-                        x = startCell.x;
-                        y = startCell.y;
-
-                        while (!isFigureOnWay) {
-
-                            if (y + stepY >= BOARD_SIZE) {
-                                y = BOARD_SIZE;
-                                stepY = -stepY;
-                                if (x < BOARD_SIZE / 2) {
-                                    x += BOARD_SIZE / 2;
-                                } else {
-                                    x -= BOARD_SIZE / 2;
-                                }
-                            } else if (y + stepY <= -1) {
-                                y = -1;
-                                stepY = -stepY;
-                                if (x < BOARD_SIZE / 2) {
-                                    x += BOARD_SIZE / 2;
-                                } else {
-                                    x -= BOARD_SIZE / 2;
-                                }
-                            }
-
-                            x += stepX;
-                            y += stepY;
-
-                            if (x == endCell.x && y == endCell.y) {
-                                break;
-                            }
-
-                            if (cellDatas[x, y].figureData.IsSome()) {
-                                isFigureOnWay = true;
-                            }
-
-                        }
+                        isFigureOnWay = IsFigureOnDiag(startCell, endCell);
                     }
 
                     break;
                 case FigureType.Bishop:
 
-                    if (startCell.x < BOARD_SIZE / 2 && endCell.x >= BOARD_SIZE / 2) {
-
-                        if (startCell.x + BOARD_SIZE / 2 > endCell.x) {
-                            stepX = -1;
-                        } else {
-                            stepX = 1;
-                        }
-
-                        if (startCell.y >= BOARD_SIZE / 2) {
-                            stepY = 1;
-                        } else {
-                            stepY = -1;
-                        }
-
-                    } else if (startCell.x >= BOARD_SIZE / 2 && endCell.x < BOARD_SIZE / 2) {
-
-                        if (startCell.x - BOARD_SIZE / 2 > endCell.x) {
-                            stepX = -1;
-                        } else {
-                            stepX = 1;
-                        }
-
-                        if (startCell.y >= BOARD_SIZE / 2) {
-                            stepY = 1;
-                        } else {
-                            stepY = -1;
-                        }
-
-                    } else {
-
-                        if (startCell.x > endCell.x) {
-                            stepX = -1;
-                        } else {
-                            stepX = 1;
-                        }
-
-                        if (startCell.y > endCell.y) {
-                            stepY = -1;
-                        } else {
-                            stepY = 1;
-                        }
-
-                    }
-
-                    x = startCell.x;
-                    y = startCell.y;
-
-                    while (!isFigureOnWay) {
-
-                        if (y + stepY >= BOARD_SIZE) {
-                            y = BOARD_SIZE;
-                            stepY = -stepY;
-                            if (x < BOARD_SIZE / 2) {
-                                x += BOARD_SIZE / 2;
-                            } else {
-                                x -= BOARD_SIZE / 2;
-                            }
-                        } else if (y + stepY <= -1) {
-                            y = -1;
-                            stepY = -stepY;
-                            if (x < BOARD_SIZE / 2) {
-                                x += BOARD_SIZE / 2;
-                            } else {
-                                x -= BOARD_SIZE / 2;
-                            }
-                        }
-
-                        x += stepX;
-                        y += stepY;
-
-                        if (x == endCell.x && y == endCell.y) {
-                            break;
-                        }
-
-                        if (cellDatas[x, y].figureData.IsSome()) {
-                            isFigureOnWay = true;
-                        }
-
-                    }
+                    isFigureOnWay = IsFigureOnDiag(startCell, endCell);
 
                     break;
                 case FigureType.Rook:
 
-                    if (deltaY == 0) {
-                        stepX = deltaX / deltaXabs;
-                        x = startCell.x;
-                        while (!isFigureOnWay) {
-                            x += stepX;
-
-                            if (x == endCell.x) {
-                                break;
-                            }
-
-                            if (cellDatas[x, endCell.y].figureData.IsNone()) {
-                                continue;
-                            }
-
-                            isFigureOnWay = true;
-                        }
-                        break;
-                    }
-
-                    if (deltaX == 0) {
-                        x = startCell.x;
-                        y = startCell.y;
-
-                        isFigureOnFirstWay = false;
-                        isFigureOnSecondWay = false;
-
-                        stepY = 1;
-
-                        while (!isFigureOnFirstWay) {
-
-                            y += stepY;
-                            if (y >= BOARD_SIZE) {
-                                stepY = -stepY;
-                                y = BOARD_SIZE - 1;
-                                if (x < BOARD_SIZE / 2) {
-                                    x += BOARD_SIZE / 2;
-                                } else {
-                                    x -= BOARD_SIZE / 2;
-                                }
-                            } else if (y < 0) {
-                                stepY = -stepY;
-                                y = 0;
-                                if (x < BOARD_SIZE / 2) {
-                                    x += BOARD_SIZE / 2;
-                                } else {
-                                    x -= BOARD_SIZE / 2;
-                                }
-                            }
-
-                            if (x == endCell.x && y == endCell.y) {
-                                break;
-                            }
-
-                            if (cellDatas[x, y].figureData.IsSome()) {
-                                isFigureOnFirstWay = true;
-                            }
-
-                        }
-
-                        x = startCell.x;
-                        y = startCell.y;
-
-                        stepY = -1;
-
-                        while (!isFigureOnSecondWay) {
-
-                            y += stepY;
-                            if (y >= BOARD_SIZE) {
-                                stepY = -stepY;
-                                y = BOARD_SIZE - 1;
-                                if (x < BOARD_SIZE / 2) {
-                                    x += BOARD_SIZE / 2;
-                                } else {
-                                    x -= BOARD_SIZE / 2;
-                                }
-                            } else if (y < 0) {
-                                stepY = -stepY;
-                                y = 0;
-                                if (x < BOARD_SIZE / 2) {
-                                    x += BOARD_SIZE / 2;
-                                } else {
-                                    x -= BOARD_SIZE / 2;
-                                }
-                            }
-
-                            if (x == endCell.x && y == endCell.y) {
-                                break;
-                            }
-
-                            if (cellDatas[x, y].figureData.IsSome()) {
-                                isFigureOnSecondWay = true;
-                            }
-                        }
-
-                        if (isFigureOnFirstWay && isFigureOnSecondWay) {
-                            isFigureOnWay = true;
-                        }
-                    }
+                    isFigureOnWay = IsFigureOnRow(startCell, endCell, deltaX, deltaY);
 
                     break;
 
@@ -654,6 +298,198 @@ namespace game {
                     break;
             }
 
+            return isFigureOnWay;
+        }
+
+        private bool IsFigureOnRow(CellData startCell, CellData endCell, int deltaX, int deltaY) {
+            bool isFigureOnWay = false;
+
+            if (deltaY == 0) {
+                int stepX = deltaX / Mathf.Abs(deltaX);
+                int x = startCell.x;
+                while (!isFigureOnWay) {
+                    x += stepX;
+
+                    if (x == endCell.x) {
+                        break;
+                    }
+
+                    if (cellDatas[x, endCell.y].figureData.IsNone()) {
+                        continue;
+                    }
+
+                    isFigureOnWay = true;
+                }
+            }
+
+            if (deltaX == 0) {
+                int x = startCell.x;
+                int y = startCell.y;
+
+                bool isFigureOnFirstWay = false;
+                bool isFigureOnSecondWay = false;
+
+                int stepY = 1;
+
+                while (!isFigureOnFirstWay) {
+
+                    y += stepY;
+                    if (y >= BOARD_SIZE) {
+                        stepY = -stepY;
+                        y = BOARD_SIZE - 1;
+                        if (x < BOARD_SIZE / 2) {
+                            x += BOARD_SIZE / 2;
+                        } else {
+                            x -= BOARD_SIZE / 2;
+                        }
+                    } else if (y < 0) {
+                        stepY = -stepY;
+                        y = 0;
+                        if (x < BOARD_SIZE / 2) {
+                            x += BOARD_SIZE / 2;
+                        } else {
+                            x -= BOARD_SIZE / 2;
+                        }
+                    }
+
+                    if (x == endCell.x && y == endCell.y) {
+                        break;
+                    }
+
+                    if (cellDatas[x, y].figureData.IsSome()) {
+                        isFigureOnFirstWay = true;
+                    }
+
+                }
+
+                x = startCell.x;
+                y = startCell.y;
+
+                stepY = -1;
+
+                while (!isFigureOnSecondWay) {
+
+                    y += stepY;
+                    if (y >= BOARD_SIZE) {
+                        stepY = -stepY;
+                        y = BOARD_SIZE - 1;
+                        if (x < BOARD_SIZE / 2) {
+                            x += BOARD_SIZE / 2;
+                        } else {
+                            x -= BOARD_SIZE / 2;
+                        }
+                    } else if (y < 0) {
+                        stepY = -stepY;
+                        y = 0;
+                        if (x < BOARD_SIZE / 2) {
+                            x += BOARD_SIZE / 2;
+                        } else {
+                            x -= BOARD_SIZE / 2;
+                        }
+                    }
+
+                    if (x == endCell.x && y == endCell.y) {
+                        break;
+                    }
+
+                    if (cellDatas[x, y].figureData.IsSome()) {
+                        isFigureOnSecondWay = true;
+                    }
+                }
+
+                if (isFigureOnFirstWay && isFigureOnSecondWay) {
+                    isFigureOnWay = true;
+                }
+            }
+
+            return isFigureOnWay;
+        }
+
+        private bool IsFigureOnDiag(CellData startCell, CellData endCell) {
+            bool isFigureOnWay = false;
+
+            int stepX;
+            int stepY;
+
+            if (startCell.x < BOARD_SIZE / 2 && endCell.x >= BOARD_SIZE / 2) {
+
+                if (startCell.x + BOARD_SIZE / 2 > endCell.x) {
+                    stepX = -1;
+                } else {
+                    stepX = 1;
+                }
+
+                if (startCell.y >= BOARD_SIZE / 2) {
+                    stepY = 1;
+                } else {
+                    stepY = -1;
+                }
+
+            } else if (startCell.x >= BOARD_SIZE / 2 && endCell.x < BOARD_SIZE / 2) {
+
+                if (startCell.x - BOARD_SIZE / 2 > endCell.x) {
+                    stepX = -1;
+                } else {
+                    stepX = 1;
+                }
+
+                if (startCell.y >= BOARD_SIZE / 2) {
+                    stepY = 1;
+                } else {
+                    stepY = -1;
+                }
+
+            } else {
+
+                if (startCell.x > endCell.x) {
+                    stepX = -1;
+                } else {
+                    stepX = 1;
+                }
+
+                if (startCell.y > endCell.y) {
+                    stepY = -1;
+                } else {
+                    stepY = 1;
+                }
+
+            }
+
+            int x = startCell.x;
+            int y = startCell.y;
+
+            while (!isFigureOnWay) {
+
+                if (y + stepY >= BOARD_SIZE) {
+                    y = BOARD_SIZE;
+                    stepY = -stepY;
+                    if (x < BOARD_SIZE / 2) {
+                        x += BOARD_SIZE / 2;
+                    } else {
+                        x -= BOARD_SIZE / 2;
+                    }
+                } else if (y + stepY <= -1) {
+                    y = -1;
+                    stepY = -stepY;
+                    if (x < BOARD_SIZE / 2) {
+                        x += BOARD_SIZE / 2;
+                    } else {
+                        x -= BOARD_SIZE / 2;
+                    }
+                }
+
+                x += stepX;
+                y += stepY;
+
+                if (x == endCell.x && y == endCell.y) {
+                    break;
+                }
+
+                if (cellDatas[x, y].figureData.IsSome()) {
+                    isFigureOnWay = true;
+                }
+
+            }
             return isFigureOnWay;
         }
 
