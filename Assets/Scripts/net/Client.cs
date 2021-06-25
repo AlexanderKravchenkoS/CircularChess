@@ -50,7 +50,7 @@ namespace net {
             return isSocketReady;
         }
 
-        public void Send(string data) {
+        public void SendData(string data) {
             if (!isSocketReady) {
                 return;
             }
@@ -88,7 +88,7 @@ namespace net {
                 return;
             }
 
-            Send(Server.CLOSE_COMMAND);
+            SendData(Server.CLOSE_COMMAND);
 
             writer.Close();
             reader.Close();

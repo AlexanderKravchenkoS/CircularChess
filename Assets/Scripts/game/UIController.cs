@@ -92,9 +92,9 @@ namespace game {
 
         public void HostButton() {
             gameController.Host();
-		}
+        }
 
-		public void ConnectMenuButton() {
+        public void ConnectMenuButton() {
             gameController.gameState = GameState.Connecting;
         }
 

@@ -1,21 +1,22 @@
 using UnityEngine;
 using cell;
 using figure;
-using option;
 using net;
+using option;
 using resource;
 
 namespace game {
     public class GameController : MonoBehaviour {
         public Resource resources;
-        public GameObject playground;
-
-        public Client client;
-        public Server server;
-        public bool isWhitePlayer;
 
         public GameState gameState;
         public bool isWhiteMove;
+        public bool isWhitePlayer;
+
+        private GameObject playground;
+
+        private Client client;
+        private Server server;
 
         private Cell[,] cells;
         private CellData[,] cellDatas;
@@ -30,7 +31,6 @@ namespace game {
         }
 
         public void StartGame() {
-
             playground = Instantiate(resources.playground);
             var board = playground.transform.Find("Board");
 
@@ -739,7 +739,7 @@ namespace game {
                 + ((int)endCell.figure.figureData.figureType).ToString() + "|"
                 + ((int)gameState).ToString();
 
-            client.Send(msg);
+            client.SendData(msg);
         }
 
         public void MakeTurn(int startX, int startY, int endX, int endY, int type, int state) {
@@ -931,7 +931,7 @@ namespace game {
                 + ((int)endCellWithPawn.figure.figureData.figureType).ToString() + "|"
                 + ((int)gameState).ToString();
 
-            client.Send(msg);
+            client.SendData(msg);
         }
 
         private void TransformPawnToNewFigure(FigureType newType) {
